@@ -102,11 +102,26 @@ def video_loading(video_path, interval):
 
     video.release()
     cv2.destroyAllWindows()
+    return frames
+
+
+def network_pass(image):
+    # defenujemy blob
+    blob = get_blob(image)
+    # karmimy sieć blobem
+    network.setInput(blob)
+    # znajdujemy warstwy, które dokonują predykcji
+    output_layers = network.getUnconnectedOutLayersNames()
+    # forward pass
+    outputs = network.forward(output_layers)
+
+    return outputs
 
 
 #variables
 frame_check_interval = 100
-video_path = 'videos/B787.mp4'
+video_name = 'B787.mp4'
+video_path = f'videos/{video_name}'
 
 network = initialize_network()
 frames = video_loading(video_path, frame_check_interval)
@@ -115,19 +130,14 @@ frames = video_loading(video_path, frame_check_interval)
 im_height, im_width = frames[0].shape[:2]
 
 
+# main loop
 for frame_nr, frame in tqdm(enumerate(frames)):
-    # defenujemy blob
-    blob = get_blob(frame)
-    # karmimy sieć blobem
-    network.setInput(blob)
-    # znajdujemy warstwy, które dokonują predykcji
-    output_layers = network.getUnconnectedOutLayersNames()
-    # forward pass
-    outputs = network.forward(output_layers)
-
-    # znajdujemy objekty YOLO
+    # przepuszczamy klatki przez sieć
+    outputs = network_pass(frame)
+    # znajdujemy objekty YOLO na warstwach wyjściowych sieci
     bbox_locations = find_planes(outputs, im_height=im_height, im_width=im_width)
     # tworzymy objekty bounding boksów i zapisujemy obrazy
     for obj_nr, bbox in enumerate(bbox_locations):
-        plane = PlaneBB(bbox[0], bbox[1], bbox[2], bbox[3], frame)
-        plane.save_plane_img(f'dataset/f_{frame_nr}_{obj_nr}.jpg')
+        video_name = video_name.split('.')[:-1][0]
+        plane_bb = PlaneBB(bbox[0], bbox[1], bbox[2], bbox[3], frame)
+        plane_bb.save_plane_img(f'dataset/{video_name}_{frame_nr}_{obj_nr}.jpg')
