@@ -122,6 +122,7 @@ def network_pass(image):
 frame_check_interval = 100
 video_name = 'B787.mp4'
 video_path = f'videos/{video_name}'
+img_name = video_name.split('.')[:-1][0]
 
 network = initialize_network()
 frames = video_loading(video_path, frame_check_interval)
@@ -138,6 +139,5 @@ for frame_nr, frame in tqdm(enumerate(frames)):
     bbox_locations = find_planes(outputs, im_height=im_height, im_width=im_width)
     # tworzymy objekty bounding boksów i zapisujemy obrazy
     for obj_nr, bbox in enumerate(bbox_locations):
-        video_name = video_name.split('.')[:-1][0]
         plane_bb = PlaneBB(bbox[0], bbox[1], bbox[2], bbox[3], frame)
-        plane_bb.save_plane_img(f'dataset/{video_name}_{frame_nr}_{obj_nr}.jpg')
+        plane_bb.save_plane_img(f'dataset/{img_name}_{frame_nr}_{obj_nr}.jpg')
