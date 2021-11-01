@@ -7,6 +7,7 @@ How to use:
 2. Download to the project folder files for YOLO support:
 3. 
 https://github.com/pjreddie/darknet/blob/master/cfg/yolov3.cfg
+
 https://pjreddie.com/media/files/yolov3.weights
 
 3. In project folder create folders 'datase' and 'videos'
